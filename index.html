@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input id="inputUsername" placeholder="아이디">
+    <input id="inputPassword" type="password" placeholder="비밀번호">
+    <button onclick="signup()">회원가입</button>
+    <button onclick="users()">유저 확인</button>
+    <a href="/login.html">
+        <button>로그인</button>
+    </a>
+
+    <!-- 출력 영역 -->
+    <div id="userList"></div>
+
+    <script>
+        const API = 'https://mongo-backend-1bgr.onrender.com/'
+
+        async function signup() {
+            const username = document.getElementById('inputUsername').value;
+            const password = document.getElementById('inputPassword').value;
+
+            if (username == "" | password == "") {
+                alert("유저네임과 패스워드를 입력하세요");
+                return;
+            }
+
+            const res = await fetch(`${API}signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert("회원가입이 완료 되었습니다")
+                document.getElementById('inputUsername').value = ""
+                document.getElementById('inputPassword').value = ""
+            } else {
+                alert("중복된 아이디 입니다")
+                document.getElementById('inputUsername').value = ""
+                document.getElementById('inputPassword').value = ""
+            }
+            users()
+        }
+
+        async function users() {
+            const container = document.getElementById('userList');
+            container.innerHTML = '';
+
+            const res = await fetch(`${API}users`);
+            const userList = await res.json();
+
+            if (userList.length === 0) {
+                const text = document.createElement('span');
+                text.innerText = "유저가 없습니다";
+
+                const container = document.getElementById('userList');
+                container.appendChild(text);
+
+                return;
+            }
+
+            for (let user of userList) {
+                const div = document.createElement('div');
+                div.className = "user";
+
+                // ✅ dataset에 id 저장
+                div.dataset.id = user._id;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+
+                const text = document.createElement('span');
+                text.innerText = ` ${user._id} - ${user.username} - ${user.password}`;
+
+                div.appendChild(checkbox);
+                div.appendChild(text);
+
+                container.appendChild(div);
+            }
+
+            const button = document.createElement('button');
+            button.innerText = "삭제";
+
+            button.addEventListener('click', async () => {
+                console.log("clicked");
+
+                for (let userdiv of document.getElementsByClassName("user")) {
+                    if (userdiv.querySelector('input').checked) {
+                        const id = userdiv.dataset.id;
+
+                        await fetch(`${API}delete/${id}`, {
+                            method: 'DELETE'
+                        });
+                    }
+                }
+
+                // ✅ 삭제 후 목록 새로고침
+                users();
+            });
+
+            container.appendChild(button);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input id="inputUsername" placeholder="아이디">
+    <input id="inputPassword" type="password" placeholder="비밀번호">
+    <button onclick="login()">로그인</button>
+    <a href="/index.html">
+        <button>회원가입</button>
+    </a>
+
+    <script>
+        async function login() {
+            const API = 'https://mongo-backend-1bgr.onrender.com/'
+
+            const username = document.getElementById('inputUsername').value;
+            const password = document.getElementById('inputPassword').value;
+
+            if (username == "" | password == "") {
+                alert("유저네임과 패스워드를 입력하세요");
+                return;
+            }
+
+            const res = await fetch(`${API}login`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            console.log(data)
+            if (data.success) {
+                alert("로그인 완료")
+                location.href="/mypage.html"
+            } else {
+                alert("아이디 또는 비밀번호가 틀렸습니다")
+                document.getElementById('inputUsername').value = ""
+                document.getElementById('inputPassword').value = ""
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const API = 'https://mongo-backend-1bgr.onrender.com/';
+
+        (async () => {
+            const res = await fetch(`${API}me`, {
+                credentials: "include"
+            });
+
+            const data = await res.json();
+            if (data.loggedIn){
+                mypage(data.username)
+            }else{
+                alert("로그인을 하세요!")
+                location.href="/login.html"
+            }
+        })();
+
+        function mypage(name){
+            const username =  document.createElement("h1")
+            username.innerText = `Hello! ${name}`;
+
+            const button = document.createElement("button")
+            button.innerText="로그아웃"
+            button.addEventListener('click', () => {
+                fetch(`${API}logout`, {
+                    method: 'POST',
+                    credentials: "include"
+                })
+                location.href="/index.html"
+            })
+
+            document.body.appendChild(username)
+            document.body.appendChild(button)
+        }
+    </script>
+</body>
+
+</html>
